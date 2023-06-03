@@ -8,6 +8,8 @@ const h = 600;
 const padding = 50;
 const margin = 20;
 
+// fetching and saving data in localStorage
+
 if (savedData) {
   document.getElementById('loading').style.display = 'none';
   const parseData = JSON.parse(savedData);
@@ -33,6 +35,8 @@ if (savedData) {
     })
     .catch((error) => console.error('Error:', error));
 }
+
+// create Bar Chart svg
 
 function createChart(parseData) {
   const data = parseData.data;
@@ -89,25 +93,12 @@ function createChart(parseData) {
     .text(parseData.name);
 
   // tooltip
-  const tooltip = createTooltip();
+  const { mouseover, mouseout } = createTooltip();
 
-  svg
-    .selectAll('rect')
-    .on('mouseover', function (e, d) {
-      const x = e.clientX;
-      const y = e.clientY;
-      console.log(x, y, d);
-      tooltip
-        .html(d)
-        .style('left', x + 10 + 'px')
-        .style('top', y - 10 + 'px');
-
-      tooltip.transition().duration(200).style('opacity', 0.9);
-    })
-    .on('mouseout', function (d) {
-      tooltip.transition().duration(500).style('opacity', 0);
-    });
+  svg.selectAll('rect').on('mouseover', mouseover).on('mouseout', mouseout);
 }
+
+// X axis util for date format
 
 function formatXAxis(data) {
   const years = data.map((year) => {
@@ -115,6 +106,8 @@ function formatXAxis(data) {
   });
   return years;
 }
+
+// x,y, bar and horizontal values data scales
 
 function createScale(data) {
   const xYears = formatXAxis(data);
@@ -152,17 +145,32 @@ function createScale(data) {
   };
 }
 
+// tooltip with mouseover and mouseout functions
+
 function createTooltip() {
   const tooltip = d3
     .select('.tool-description')
     .append('div')
     .attr('id', 'tooltip')
-    .style('opacity', 0)
-    .style('background-color', 'black')
-    .style('border', 'solid')
-    .style('border-width', '2px')
-    .style('border-radius', '5px')
-    .style('padding', '5px');
+    .style('opacity', 0);
 
-  return tooltip;
+  function mouseover(e, d) {
+    const x = e.clientX;
+    const y = e.clientY;
+
+    document.getElementById('tooltip').setAttribute('data-date', d[0]);
+
+    tooltip
+      .html(`$${d[1]} BUSD in ${d[0]}`)
+      .style('left', x + 10 + 'px')
+      .style('top', y - 10 + 'px');
+
+    tooltip.transition().duration(200).style('opacity', 0.9);
+  }
+
+  function mouseout() {
+    tooltip.transition().duration(500).style('opacity', 0);
+  }
+
+  return { tooltip, mouseover, mouseout };
 }
