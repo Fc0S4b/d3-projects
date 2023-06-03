@@ -4,11 +4,9 @@ const savedData = localStorage.getItem('savedData');
 const loadingMessage = document.getElementById('loading');
 
 const w = 800;
-const h = 800;
+const h = 600;
 const padding = 50;
 const margin = 20;
-const width = w - padding;
-const height = h - padding;
 
 if (savedData) {
   document.getElementById('loading').style.display = 'none';
@@ -35,65 +33,88 @@ if (savedData) {
 
 function createChart(parseData) {
   const data = parseData.data;
-  const { xScale, yScale } = createAxisScale(data);
-  const barWidth = width / data.length;
+  const { xScale, yScale, barHeightScale, hzScale } = createScale(data);
+  const barWidth = (w - 2 * padding) / data.length;
 
+  // canvas
   const svg = d3
     .select('.chart')
     .append('svg')
     .attr('width', w + margin)
     .attr('height', h + margin);
 
+  // bars
   svg
     .selectAll('rect')
     .data(data)
     .enter()
     .append('rect')
     .attr('class', 'bar')
-    .attr('x', (d, i) => padding + i * barWidth)
-    .attr('y', (d, i) => yScale(d[1]))
+    .attr('height', (d) => barHeightScale(d[1]))
     .attr('width', barWidth)
-    .attr('height', (d) => height - yScale(d[1]))
+    .attr('data-date', (d) => d[0])
+    .attr('data-gdp', (d) => d[1])
+    .attr('x', (d, i) => hzScale(i))
+    .attr('y', (d, i) => yScale(d[1]))
     .style('fill', '#1C3738');
 
-  const xAxis = d3.axisBottom(xScale).tickFormat(d3.format('d'));
+  //  axis
+
+  const xAxis = d3.axisBottom(xScale);
   const yAxis = d3.axisLeft(yScale);
 
   svg
     .append('g')
     .attr('id', 'x-axis')
-    .attr('transform', 'translate(' + padding + ',' + height + ')')
+    .attr('transform', `translate(0, ${h - padding})`)
     .call(xAxis);
+
   svg
     .append('g')
     .attr('id', 'y-axis')
-    .attr('transform', 'translate(' + padding + ',0)')
+    .attr('transform', `translate(${padding}, 0)`)
     .call(yAxis);
 }
 
 function formatXAxis(data) {
   const years = data.map((year) => {
-    return year[0].substring(0, 4);
+    return new Date(year[0]);
   });
   return years;
 }
 
-function createAxisScale(data) {
+function createScale(data) {
   const xYears = formatXAxis(data);
 
   const xScale = d3
-    .scaleLinear()
+    .scaleTime()
     .domain([d3.min(xYears), d3.max(xYears)])
-    .nice()
-    .range([0, 750]);
+    .range([padding, w - padding]);
 
   const yScale = d3
     .scaleLinear()
-    .domain([d3.min(data, (data) => data[1]), d3.max(data, (data) => data[1])])
-    .range([height, padding]);
+    .domain([0, d3.max(data, (data) => data[1])])
+    .range([h - padding, padding]);
+
+  const barHeightScale = d3
+    .scaleLinear()
+    .domain([
+      0,
+      d3.max(data, (d) => {
+        return d[1];
+      }),
+    ])
+    .range([0, h - 2 * padding]);
+
+  const hzScale = d3
+    .scaleLinear()
+    .domain([0, data.length - 1])
+    .range([padding, w - padding]);
 
   return {
     xScale,
     yScale,
+    barHeightScale,
+    hzScale,
   };
 }
