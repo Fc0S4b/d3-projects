@@ -1,5 +1,32 @@
+body{
+  background: #8BAAAD;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+ 
+}
+
+.container{
+  background: #F4FFF8;
+  width: 900px;
+  margin: 0 auto;
+  box-shadow: 0px 0px 26px -4px rgba(77, 72, 71, 1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+#title {
+  text-align: center;
+  color: #000F08;
+}
+
 .loading{
   display:none;
 }
 
+g{
+  font-size: 14px;
+}
 
+/* color for tooltip */
+/* 4D4847 1C3738*/

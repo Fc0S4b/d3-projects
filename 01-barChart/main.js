@@ -6,6 +6,7 @@ const loadingMessage = document.getElementById('loading');
 const w = 800;
 const h = 800;
 const padding = 50;
+const margin = 20;
 const width = w - padding;
 const height = h - padding;
 
@@ -40,8 +41,8 @@ function createChart(parseData) {
   const svg = d3
     .select('.chart')
     .append('svg')
-    .attr('width', w + 20)
-    .attr('height', h + 20);
+    .attr('width', w + margin)
+    .attr('height', h + margin);
 
   svg
     .selectAll('rect')
@@ -53,7 +54,7 @@ function createChart(parseData) {
     .attr('y', (d, i) => yScale(d[1]))
     .attr('width', barWidth)
     .attr('height', (d) => height - yScale(d[1]))
-    .style('fill', '#1B3366');
+    .style('fill', '#1C3738');
 
   const xAxis = d3.axisBottom(xScale).tickFormat(d3.format('d'));
   const yAxis = d3.axisLeft(yScale);
