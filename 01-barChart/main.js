@@ -26,6 +26,8 @@ if (savedData) {
     .then((data) => {
       loadingMessage.style.display = 'none';
       localStorage.setItem('savedData', JSON.stringify(data));
+      createChart(data);
+      loadingMessage.style.display = 'none';
     })
     .catch((error) => console.error('Error:', error));
 }
@@ -38,8 +40,8 @@ function createChart(parseData) {
   const svg = d3
     .select('.chart')
     .append('svg')
-    .attr('width', w)
-    .attr('height', h);
+    .attr('width', w + 20)
+    .attr('height', h + 20);
 
   svg
     .selectAll('rect')
@@ -47,19 +49,25 @@ function createChart(parseData) {
     .enter()
     .append('rect')
     .attr('class', 'bar')
-    .attr('x', (d, i) => width - i * barWidth)
-    .attr('y', (d, i) => height - yScale(d[1]))
+    .attr('x', (d, i) => padding + i * barWidth)
+    .attr('y', (d, i) => yScale(d[1]))
     .attr('width', barWidth)
-    .attr('height', (d) => yScale(d[1]))
+    .attr('height', (d) => height - yScale(d[1]))
     .style('fill', '#1B3366');
 
   const xAxis = d3.axisBottom(xScale).tickFormat(d3.format('d'));
+  const yAxis = d3.axisLeft(yScale);
 
   svg
     .append('g')
     .attr('id', 'x-axis')
-    .attr('transform', 'translate(0,' + (h - padding) + ')')
+    .attr('transform', 'translate(' + padding + ',' + height + ')')
     .call(xAxis);
+  svg
+    .append('g')
+    .attr('id', 'y-axis')
+    .attr('transform', 'translate(' + padding + ',0)')
+    .call(yAxis);
 }
 
 function formatXAxis(data) {
@@ -71,15 +79,17 @@ function formatXAxis(data) {
 
 function createAxisScale(data) {
   const xYears = formatXAxis(data);
+
   const xScale = d3
     .scaleLinear()
     .domain([d3.min(xYears), d3.max(xYears)])
-    .range([0, width]);
+    .nice()
+    .range([0, 750]);
 
   const yScale = d3
     .scaleLinear()
-    .domain([0, d3.max(data, (d) => d[1])])
-    .range([height, 0]);
+    .domain([d3.min(data, (data) => data[1]), d3.max(data, (data) => data[1])])
+    .range([height, padding]);
 
   return {
     xScale,
