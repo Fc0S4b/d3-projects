@@ -12,6 +12,9 @@ if (savedData) {
   document.getElementById('loading').style.display = 'none';
   const parseData = JSON.parse(savedData);
   loadingMessage.style.display = 'none';
+  document.getElementById(
+    'description'
+  ).textContent = `${parseData.description}`;
   createChart(parseData);
 } else {
   loadingMessage.style.display = 'block';
@@ -74,6 +77,36 @@ function createChart(parseData) {
     .attr('id', 'y-axis')
     .attr('transform', `translate(${padding}, 0)`)
     .call(yAxis);
+
+  // label
+
+  svg
+    .append('text')
+    .attr('class', 'y-axis-label')
+    .attr('x', -400)
+    .attr('y', 90)
+    .attr('transform', 'rotate(-90)')
+    .text(parseData.name);
+
+  // tooltip
+  const tooltip = createTooltip();
+
+  svg
+    .selectAll('rect')
+    .on('mouseover', function (e, d) {
+      const x = e.clientX;
+      const y = e.clientY;
+      console.log(x, y, d);
+      tooltip
+        .html(d)
+        .style('left', x + 10 + 'px')
+        .style('top', y - 10 + 'px');
+
+      tooltip.transition().duration(200).style('opacity', 0.9);
+    })
+    .on('mouseout', function (d) {
+      tooltip.transition().duration(500).style('opacity', 0);
+    });
 }
 
 function formatXAxis(data) {
@@ -117,4 +150,19 @@ function createScale(data) {
     barHeightScale,
     hzScale,
   };
+}
+
+function createTooltip() {
+  const tooltip = d3
+    .select('.tool-description')
+    .append('div')
+    .attr('id', 'tooltip')
+    .style('opacity', 0)
+    .style('background-color', 'black')
+    .style('border', 'solid')
+    .style('border-width', '2px')
+    .style('border-radius', '5px')
+    .style('padding', '5px');
+
+  return tooltip;
 }
