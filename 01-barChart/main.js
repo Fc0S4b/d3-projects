@@ -161,9 +161,12 @@ function createTooltip() {
     document.getElementById('tooltip').setAttribute('data-date', d[0]);
 
     tooltip
-      .html(`$${d[1]} BUSD in ${d[0]}`)
+      .html(`$${d[1]} BUSD in ${d[0].substring(0, 4)}`)
       .style('left', x + 10 + 'px')
-      .style('top', y - 10 + 'px');
+      .style('top', y - 10 + 'px')
+      .style('display', 'flex')
+      .style('justify-content', 'center')
+      .style('align-items', 'center');
 
     tooltip.transition().duration(200).style('opacity', 0.9);
   }
